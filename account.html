@@ -415,6 +415,11 @@
       BQYHNO: "greenpin",
       TORVIX: "torneo"
     };
+    const standardCodes = new Set([
+      "QVZKRM","HNPTSA","LJDWUX","RCYBGE","MFXTQA","ZHVRKP","DQSNAJ","TLBXWF","KPUJRH","GYMNVT",
+      "SXQALD","VTRKZN","BHWQPM","JNCYLA","PZKXRF","AMTQSV","UGLHND","WXRQPC","NPVTSJ","CKZLBU",
+      "RMGXQA","YTJPNV","LQWDHZ","FVRKPS","BNZQTM","XPLHVA"
+    ]);
 
     const specialList = [
       { key: "kobra", label: "1", imgPath: "" },
@@ -569,10 +574,30 @@
       stickersEl.innerHTML = "";
       for (let i = 1; i <= TOTAL_STANDARD; i++) {
         const el = document.createElement("div");
-        const label = document.createElement("span");
-        el.className = "sticker" + (i <= progressStandard ? " unlocked" : "");
-        label.textContent = i;
-        el.appendChild(label);
+        const isUnlocked = i <= progressStandard;
+        el.className = "sticker" + (isUnlocked ? " unlocked" : "");
+        if (isUnlocked) {
+          const path = `stickers/standard/${i}.png`;
+          const imgUrl = await resolveImageUrl(path);
+          if (imgUrl) {
+            const img = document.createElement("img");
+            img.src = imgUrl;
+            img.alt = `Sticker ${i}`;
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.objectFit = "cover";
+            img.style.borderRadius = "12px";
+            el.appendChild(img);
+          } else {
+            const label = document.createElement("span");
+            label.textContent = i;
+            el.appendChild(label);
+          }
+        } else {
+          const label = document.createElement("span");
+          label.textContent = i;
+          el.appendChild(label);
+        }
         stickersEl.appendChild(el);
       }
     }
@@ -614,6 +639,11 @@
       return;
       }
 
+      if (!standardCodes.has(code)) {
+        codeStatus.textContent = "Codice non valido.";
+        codeStatus.className = "status err";
+        return;
+      }
       if ((userData.stickers || 0) >= TOTAL_STANDARD) {
         codeStatus.textContent = "Hai già sbloccato tutti gli sticker.";
         codeStatus.className = "status ok";
