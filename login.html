@@ -187,7 +187,9 @@
         authStatus.className = "status ok";
         window.location.href = "account.html";
       } catch (err) {
-        authStatus.textContent = "Errore di registrazione.";
+        console.error(err);
+        const msg = err?.message || err?.code || "Errore di registrazione.";
+        authStatus.textContent = `Errore di registrazione: ${msg}`;
         authStatus.className = "status err";
       }
     });
@@ -221,6 +223,7 @@
         authStatus.className = "status ok";
         window.location.href = "account.html";
       } catch (err) {
+        console.error(err);
         authStatus.textContent = "Credenziali non valide.";
         authStatus.className = "status err";
       }
@@ -228,3 +231,4 @@
   </script>
 </body>
 </html>
+ 
