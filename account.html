@@ -429,10 +429,10 @@
 
     const specialList = [
       { key: "kobra", label: "1", imgPath: "" },
-      { key: "arbitro", label: "2", imgPath: "stickers/special/arbitro.png" },
+      { key: "arbitro", label: "2", imgPath: "arbitro.png" },
       { key: "tagteam", label: "3", imgPath: "" },
-      { key: "pizza", label: "4", imgPath: "stickers/special/pizza icon.png" },
-      { key: "social", label: "5", imgPath: "stickers/special/instagram.png" },
+      { key: "pizza", label: "4", imgPath: "pizza icon.png" },
+      { key: "social", label: "5", imgPath: "instagram.png" },
       { key: "greenpin", label: "6", imgPath: "" },
       { key: "torneo", label: "7", imgPath: "" }
     ];
@@ -578,7 +578,7 @@
         const isUnlocked = i <= progressStandard;
         el.className = "sticker" + (isUnlocked ? " unlocked" : "");
         if (isUnlocked) {
-          const path = `stickers/standard/${i}.png`;
+          const path = `${i}.png`;
           const imgUrl = await resolveImageUrl(path);
           if (imgUrl) {
             const img = document.createElement("img");
