@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Login | Kobra Kay Stickers</title>
   <style>
+    @font-face {
+      font-family: "Dead Stock Demo 3";
+      src: url("Dead Stock - Demo 3.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
     :root {
       --bg: #000000;
       --bg-2: #000000;
@@ -13,6 +20,7 @@
       --text: #f5f5f5;
       --muted: #a3a3a3;
       --danger: #ef4444;
+      --title-font: "Dead Stock Demo 3", "Space Grotesk", "Arial Narrow", Arial, sans-serif;
     }
     * { box-sizing: border-box; }
     body {
@@ -26,7 +34,7 @@
       padding: 28px 20px 10px;
       text-align: center;
     }
-    header h1 { margin: 0; letter-spacing: 1px; font-weight: 700; }
+    header h1 { margin: 0; letter-spacing: 1px; font-weight: 700; font-family: var(--title-font); }
     header p { margin: 6px 0 0; color: var(--muted); }
     .container { max-width: 560px; margin: 0 auto; padding: 20px; }
     .card {
@@ -36,7 +44,7 @@
       padding: 18px;
       box-shadow: 0 12px 30px rgba(0,0,0,0.25);
     }
-    .card h2 { margin: 0 0 12px; font-size: 20px; }
+    .card h2 { margin: 0 0 12px; font-size: 20px; font-family: var(--title-font); }
     .grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
     .field { display: grid; gap: 6px; }
     label { font-size: 12px; color: var(--muted); }
@@ -123,6 +131,8 @@
     };
 
     const authStatus = document.getElementById("auth-status");
+    authStatus.textContent = "Caricamento...";
+    authStatus.className = "status warn";
     const nameInput = document.getElementById("name");
     const passInput = document.getElementById("pass");
 
@@ -156,6 +166,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const WELCOME_CODE = "KOBRAZ";
+        authStatus.textContent = "Pronto.";
+        authStatus.className = "status ok";
 
         document.getElementById("register").addEventListener("click", async () => {
           const nameRaw = nameInput.value.trim();
