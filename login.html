@@ -111,8 +111,6 @@
   </main>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAgkp6KjRKcOKJHmcKkGiNXGtAv1aaEFSI",
@@ -123,10 +121,6 @@
       appId: "1:154203930636:web:710ff8dbc43d2abf08ee29",
       measurementId: "G-J3W1MMBZJ4"
     };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const WELCOME_CODE = "KOBRAZ";
 
     const authStatus = document.getElementById("auth-status");
     const nameInput = document.getElementById("name");
@@ -154,81 +148,98 @@
       return name.trim().toLowerCase();
     }
 
-    document.getElementById("register").addEventListener("click", async () => {
-      const nameRaw = nameInput.value.trim();
-      const pass = passInput.value.trim();
-      if (!nameRaw || !pass) {
-        authStatus.textContent = "Inserisci nome utente e password.";
-        authStatus.className = "status warn";
-        return;
-      }
-      const username = normalizeUsername(nameRaw);
+    async function init() {
       try {
-        const ref = doc(db, "users", username);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          authStatus.textContent = "Nome utente già esistente. Usa Accedi.";
-          authStatus.className = "status warn";
-          return;
-        }
-        const passwordHash = await hashPassword(pass);
-        await setDoc(ref, {
-          username,
-          displayName: nameRaw,
-          passwordHash,
-          stickers: 0,
-          specials: {},
-          usedCodes: [],
-          lastReadMessages: 0,
-          createdAt: serverTimestamp()
-        });
-        setSession(username);
-        authStatus.textContent = `Registrazione completata. Codice benvenuto: ${WELCOME_CODE}`;
-        authStatus.className = "status ok";
-        window.location.href = "account.html";
-      } catch (err) {
-        console.error(err);
-        const msg = err?.message || err?.code || "Errore di registrazione.";
-        authStatus.textContent = `Errore di registrazione: ${msg}`;
-        authStatus.className = "status err";
-      }
-    });
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
+        const { getFirestore, doc, getDoc, setDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
 
-    document.getElementById("login").addEventListener("click", async () => {
-      const nameRaw = nameInput.value.trim();
-      const pass = passInput.value.trim();
-      if (!nameRaw || !pass) {
-        authStatus.textContent = "Inserisci nome utente e password.";
-        authStatus.className = "status warn";
-        return;
-      }
-      const username = normalizeUsername(nameRaw);
-      try {
-        const ref = doc(db, "users", username);
-        const snap = await getDoc(ref);
-        if (!snap.exists()) {
-          authStatus.textContent = "Credenziali non valide.";
-          authStatus.className = "status err";
-          return;
-        }
-        const data = snap.data();
-        const passwordHash = await hashPassword(pass);
-        if (data.passwordHash !== passwordHash) {
-          authStatus.textContent = "Credenziali non valide.";
-          authStatus.className = "status err";
-          return;
-        }
-        setSession(username);
-        authStatus.textContent = "Accesso effettuato.";
-        authStatus.className = "status ok";
-        window.location.href = "account.html";
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const WELCOME_CODE = "KOBRAZ";
+
+        document.getElementById("register").addEventListener("click", async () => {
+          const nameRaw = nameInput.value.trim();
+          const pass = passInput.value.trim();
+          if (!nameRaw || !pass) {
+            authStatus.textContent = "Inserisci nome utente e password.";
+            authStatus.className = "status warn";
+            return;
+          }
+          const username = normalizeUsername(nameRaw);
+          try {
+            const ref = doc(db, "users", username);
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+              authStatus.textContent = "Nome utente già esistente. Usa Accedi.";
+              authStatus.className = "status warn";
+              return;
+            }
+            const passwordHash = await hashPassword(pass);
+            await setDoc(ref, {
+              username,
+              displayName: nameRaw,
+              passwordHash,
+              stickers: 0,
+              specials: {},
+              usedCodes: [],
+              lastReadMessages: 0,
+              createdAt: serverTimestamp()
+            });
+            setSession(username);
+            authStatus.textContent = `Registrazione completata. Codice benvenuto: ${WELCOME_CODE}`;
+            authStatus.className = "status ok";
+            window.location.href = "account.html";
+          } catch (err) {
+            console.error(err);
+            const msg = err?.message || err?.code || "Errore di registrazione.";
+            authStatus.textContent = `Errore di registrazione: ${msg}`;
+            authStatus.className = "status err";
+          }
+        });
+
+        document.getElementById("login").addEventListener("click", async () => {
+          const nameRaw = nameInput.value.trim();
+          const pass = passInput.value.trim();
+          if (!nameRaw || !pass) {
+            authStatus.textContent = "Inserisci nome utente e password.";
+            authStatus.className = "status warn";
+            return;
+          }
+          const username = normalizeUsername(nameRaw);
+          try {
+            const ref = doc(db, "users", username);
+            const snap = await getDoc(ref);
+            if (!snap.exists()) {
+              authStatus.textContent = "Credenziali non valide.";
+              authStatus.className = "status err";
+              return;
+            }
+            const data = snap.data();
+            const passwordHash = await hashPassword(pass);
+            if (data.passwordHash !== passwordHash) {
+              authStatus.textContent = "Credenziali non valide.";
+              authStatus.className = "status err";
+              return;
+            }
+            setSession(username);
+            authStatus.textContent = "Accesso effettuato.";
+            authStatus.className = "status ok";
+            window.location.href = "account.html";
+          } catch (err) {
+            console.error(err);
+            authStatus.textContent = "Credenziali non valide.";
+            authStatus.className = "status err";
+          }
+        });
       } catch (err) {
         console.error(err);
-        authStatus.textContent = "Credenziali non valide.";
+        const msg = err?.message || err?.code || "Impossibile caricare Firebase.";
+        authStatus.textContent = `Errore: ${msg}`;
         authStatus.className = "status err";
       }
-    });
+    }
+
+    init();
   </script>
 </body>
 </html>
- 
