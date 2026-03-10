@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login | Kobra Kay Stickers</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-2: #000000;
+      --card: #0a0a0a;
+      --accent: #facc15;
+      --text: #f5f5f5;
+      --muted: #a3a3a3;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Arial Narrow", Arial, sans-serif;
+      color: var(--text);
+      background: #000;
+      min-height: 100vh;
+    }
+    header {
+      padding: 28px 20px 10px;
+      text-align: center;
+    }
+    header h1 { margin: 0; letter-spacing: 1px; font-weight: 700; }
+    header p { margin: 6px 0 0; color: var(--muted); }
+    .container { max-width: 560px; margin: 0 auto; padding: 20px; }
+    .card {
+      background: var(--card);
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    }
+    .card h2 { margin: 0 0 12px; font-size: 20px; }
+    .grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+    .field { display: grid; gap: 6px; }
+    label { font-size: 12px; color: var(--muted); }
+    input, button {
+      font-family: inherit;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #1f2937;
+      background: #0b1220;
+      color: var(--text);
+      outline: none;
+    }
+    input:focus { border-color: var(--accent); }
+    button {
+      cursor: pointer;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      font-weight: 600;
+    }
+    button.secondary {
+      background: #111827;
+      color: var(--text);
+      border: 1px solid #1f2937;
+    }
+    .muted { color: var(--muted); font-size: 13px; }
+    .status {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      background: #0b1220;
+      font-size: 14px;
+    }
+    .status.ok { border-color: #14532d; color: #86efac; }
+    .status.warn { border-color: #78350f; color: #fde68a; }
+    .status.err { border-color: #7f1d1d; color: #fecaca; }
+    @media (max-width: 700px) {
+      header { padding: 20px 16px 8px; }
+      .container { padding: 16px; }
+      .grid { grid-template-columns: 1fr; }
+      button { width: 100%; }
+      .card { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kobra Kay Stickers</h1>
+    <p>Registra il tuo account, inserisci i codici e sblocca 32 sticker.</p>
+  </header>
+
+  <main class="container">
+    <section class="card" id="auth-card">
+      <h2>Accesso</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="name">Nome utente</label>
+          <input id="name" placeholder="Es. marco99" autocomplete="username" />
+        </div>
+        <div class="field">
+          <label for="pass">Password</label>
+          <input id="pass" type="password" placeholder="••••••" autocomplete="current-password" />
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <button id="register">Registrati</button>
+        <button class="secondary" id="login">Accedi</button>
+      </div>
+      <p class="muted" style="margin-top:10px;">Accesso online con Firebase.</p>
+      <div id="auth-status" class="status" style="margin-top:12px;">Non autenticato</div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgkp6KjRKcOKJHmcKkGiNXGtAv1aaEFSI",
+      authDomain: "stickerkobrakay.firebaseapp.com",
+      projectId: "stickerkobrakay",
+      storageBucket: "stickerkobrakay.firebasestorage.app",
+      messagingSenderId: "154203930636",
+      appId: "1:154203930636:web:710ff8dbc43d2abf08ee29",
+      measurementId: "G-J3W1MMBZJ4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const WELCOME_CODE = "KOBRAZ";
+
+    const authStatus = document.getElementById("auth-status");
+    const nameInput = document.getElementById("name");
+    const passInput = document.getElementById("pass");
+
+    function getSession() {
+      return localStorage.getItem("kobraSession");
+    }
+    function setSession(username) {
+      if (username) localStorage.setItem("kobraSession", username);
+      else localStorage.removeItem("kobraSession");
+    }
+    if (getSession()) {
+      window.location.href = "account.html";
+    }
+
+    async function hashPassword(pass) {
+      const data = new TextEncoder().encode(pass);
+      const digest = await crypto.subtle.digest("SHA-256", data);
+      const bytes = Array.from(new Uint8Array(digest));
+      return bytes.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function normalizeUsername(name) {
+      return name.trim().toLowerCase();
+    }
+
+    document.getElementById("register").addEventListener("click", async () => {
+      const nameRaw = nameInput.value.trim();
+      const pass = passInput.value.trim();
+      if (!nameRaw || !pass) {
+        authStatus.textContent = "Inserisci nome utente e password.";
+        authStatus.className = "status warn";
+        return;
+      }
+      const username = normalizeUsername(nameRaw);
+      try {
+        const ref = doc(db, "users", username);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          authStatus.textContent = "Nome utente già esistente. Usa Accedi.";
+          authStatus.className = "status warn";
+          return;
+        }
+        const passwordHash = await hashPassword(pass);
+        await setDoc(ref, {
+          username,
+          displayName: nameRaw,
+          passwordHash,
+          stickers: 0,
+          specials: {},
+          usedCodes: [],
+          lastReadMessages: 0,
+          createdAt: serverTimestamp()
+        });
+        setSession(username);
+        authStatus.textContent = `Registrazione completata. Codice benvenuto: ${WELCOME_CODE}`;
+        authStatus.className = "status ok";
+        window.location.href = "account.html";
+      } catch (err) {
+        authStatus.textContent = "Errore di registrazione.";
+        authStatus.className = "status err";
+      }
+    });
+
+    document.getElementById("login").addEventListener("click", async () => {
+      const nameRaw = nameInput.value.trim();
+      const pass = passInput.value.trim();
+      if (!nameRaw || !pass) {
+        authStatus.textContent = "Inserisci nome utente e password.";
+        authStatus.className = "status warn";
+        return;
+      }
+      const username = normalizeUsername(nameRaw);
+      try {
+        const ref = doc(db, "users", username);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) {
+          authStatus.textContent = "Credenziali non valide.";
+          authStatus.className = "status err";
+          return;
+        }
+        const data = snap.data();
+        const passwordHash = await hashPassword(pass);
+        if (data.passwordHash !== passwordHash) {
+          authStatus.textContent = "Credenziali non valide.";
+          authStatus.className = "status err";
+          return;
+        }
+        setSession(username);
+        authStatus.textContent = "Accesso effettuato.";
+        authStatus.className = "status ok";
+        window.location.href = "account.html";
+      } catch (err) {
+        authStatus.textContent = "Credenziali non valide.";
+        authStatus.className = "status err";
+      }
+    });
+  </script>
+</body>
+</html>

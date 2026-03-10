@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Account | Kobra Kay Stickers</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-2: #000000;
+      --card: #0a0a0a;
+      --accent: #facc15;
+      --accent-2: #22c55e;
+      --text: #f5f5f5;
+      --muted: #a3a3a3;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Arial Narrow", Arial, sans-serif;
+      color: var(--text);
+      background: #000;
+      min-height: 100vh;
+    }
+    header {
+      padding: 28px 20px 10px;
+      text-align: center;
+    }
+    header h1 { margin: 0; letter-spacing: 1px; font-weight: 700; }
+    header p { margin: 6px 0 0; color: var(--muted); }
+    .mail {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 40;
+    }
+    .mail button {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      border: 1px solid #1f2937;
+      background: #0b1220;
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      position: relative;
+      font-size: 28px;
+    }
+    .mail .badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--danger);
+      color: #fff;
+      font-size: 14px;
+      display: none;
+      place-items: center;
+      border: 2px solid #0b1220;
+    }
+    .mail-panel {
+      position: fixed;
+      top: 72px;
+      right: 16px;
+      width: min(360px, 92vw);
+      max-height: 70vh;
+      overflow: auto;
+      background: #0b1220;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+      display: none;
+      z-index: 40;
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 900px) {
+      .container { grid-template-columns: 1.1fr 1fr; align-items: start; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    }
+    .card h2 { margin: 0 0 12px; font-size: 20px; }
+    label { font-size: 12px; color: var(--muted); }
+    input, button {
+      font-family: inherit;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #1f2937;
+      background: #0b1220;
+      color: var(--text);
+      outline: none;
+    }
+    input:focus { border-color: var(--accent); }
+    button {
+      cursor: pointer;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      font-weight: 600;
+    }
+    button.secondary {
+      background: #111827;
+      color: var(--text);
+      border: 1px solid #1f2937;
+    }
+    .muted { color: var(--muted); font-size: 13px; }
+    .status {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      background: #0b1220;
+      font-size: 14px;
+    }
+    .status.ok { border-color: #14532d; color: #86efac; }
+    .status.warn { border-color: #78350f; color: #fde68a; }
+    .status.err { border-color: #7f1d1d; color: #fecaca; }
+    .progress {
+      height: 14px;
+      background: #0b1220;
+      border: 1px solid #1f2937;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress > div {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .stickers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, 180px);
+      gap: 10px;
+      justify-content: center;
+      justify-items: center;
+    }
+    .sticker {
+      width: 180px;
+      height: 180px;
+      border-radius: 14px;
+      border: 1px dashed #334155;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      color: #475569;
+      background:
+        linear-gradient(135deg, #0b1220 0%, #0f172a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .sticker::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(45deg, #111827 0 10px, #0b1220 10px 20px);
+      opacity: 0.35;
+    }
+    .sticker > span {
+      position: relative;
+      z-index: 1;
+    }
+    .sticker.unlocked {
+      border-style: solid;
+      border-color: #14532d;
+      background:
+        radial-gradient(circle at 30% 30%, #22c55e33 0%, transparent 55%),
+        linear-gradient(135deg, #0b1220 0%, #0f172a 100%);
+      color: #bbf7d0;
+    }
+    .tshirt {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      background: #0b1220;
+    }
+    .tshirt.win {
+      border-color: #14532d;
+      color: #86efac;
+    }
+    .messages {
+      display: grid;
+      gap: 8px;
+    }
+    .message {
+      border: 1px solid #1f2937;
+      background: #0b1220;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+    .message time {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .banner {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 6, 23, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      padding: 20px;
+    }
+    .banner .box {
+      background: #0b1220;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 18px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    }
+    .banner .box h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    .banner .box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    @media (max-width: 800px) {
+      header { padding: 20px 16px 8px; }
+      .container { padding: 16px; }
+      .card { padding: 14px; }
+      .stickers { grid-template-columns: repeat(auto-fit, 140px); }
+      .sticker { width: 140px; height: 140px; border-radius: 12px; }
+      .mail { top: 10px; right: 10px; }
+      .mail button { width: 56px; height: 56px; font-size: 24px; }
+      .mail-panel { right: 10px; top: 70px; }
+      button.secondary, button { width: 100%; }
+      #dashboard div[style*="display:flex"][style*="gap:10px"] { flex-direction: column; }
+    }
+    .goals {
+      display: grid;
+      gap: 10px;
+    }
+    .goal {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      background: #0b1220;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+    .goal strong { font-weight: 600; }
+    @media (min-width: 900px) {
+      #goals {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kobra Kay Stickers</h1>
+    <p>Il tuo account personale per sbloccare gli sticker.</p>
+  </header>
+
+  <main class="container">
+    <section class="card" id="dashboard">
+      <h2>Il tuo account</h2>
+      <div class="status ok" id="user-line">Ciao!</div>
+
+      <div style="margin-top:12px;">
+        <label for="code">Codice alfanumerico</label>
+        <div style="display:flex; gap:10px;">
+          <input id="code" placeholder="Es. KBR-7A9X" />
+          <button id="redeem">Sblocca</button>
+        </div>
+        <p class="muted">Ogni codice valido sblocca 1 sticker. I codici già usati non valgono.</p>
+        <div id="code-status" class="status" style="margin-top:10px;">Inserisci un codice per iniziare.</div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong>Progresso totale</strong>
+          <span id="count">0/32</span>
+        </div>
+        <div class="progress" style="margin-top:8px;"><div id="bar"></div></div>
+      </div>
+
+      <div class="tshirt" id="tshirt">
+        <strong>Maglietta Kobra Kay</strong>
+        <div class="muted">Si sblocca al raggiungimento di 25 sticker.</div>
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:10px;">
+        <button class="secondary" id="logout">Esci</button>
+        <button class="secondary" id="reset">Reset demo</button>
+      </div>
+    </section>
+
+    <div class="mail">
+      <button id="mail-btn" aria-label="Messaggi">
+        ✉
+        <span class="badge" id="mail-badge">!</span>
+      </button>
+    </div>
+    <div class="mail-panel" id="mail-panel">
+      <h2 style="margin: 0 0 10px; font-size: 18px;">Messaggi</h2>
+      <div class="messages" id="messages"></div>
+      <div id="admin-box" style="margin-top:12px; display:none;">
+        <label for="admin-message">Invia messaggio a tutti (admin)</label>
+        <div style="display:flex; gap:10px; margin-top:6px;">
+          <input id="admin-message" placeholder="Scrivi un messaggio..." />
+          <button id="send-message">Invia</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="card" id="goals">
+      <h2>Sticker Speciali</h2>
+      <div class="stickers" id="special-stickers"></div>
+
+      <details style="margin-top:16px;">
+        <summary style="cursor:pointer; font-weight:600;">Come ottenerli</summary>
+        <div class="goals" style="margin-top:10px;">
+          <div class="goal"><strong>Kobra Sticker (Benvenuto)</strong><span>Inserire il codice di benvenuto alla registrazione</span></div>
+          <div class="goal"><strong>Sticker Arbitro</strong><span>Arbitrare durante un torneo</span></div>
+          <div class="goal"><strong>Tag Team Sticker</strong><span>Partecipare a un torneo a 3 giocatori</span></div>
+          <div class="goal"><strong>Pizza Sticker</strong><span>Partecipare a un local del mercoledi</span></div>
+          <div class="goal"><strong>Social Sticker</strong><span>Seguire la pagina Instagram</span></div>
+          <div class="goal"><strong>Green Pin</strong><span>Essere parte della community WhatsApp Kobra Kay</span></div>
+          <div class="goal"><strong>Sticker Torneo</strong><span>Vincere un torneo</span></div>
+        </div>
+      </details>
+
+      <h2 style="margin-top:16px;">Sticker Standard (26)</h2>
+      <div class="stickers" id="stickers"></div>
+    </section>
+  </main>
+  <div class="banner" id="banner">
+    <div class="box">
+      <h3 id="banner-title">Complimenti!</h3>
+      <p id="banner-text">Hai ottenuto lo sticker!</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, arrayUnion, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgkp6KjRKcOKJHmcKkGiNXGtAv1aaEFSI",
+      authDomain: "stickerkobrakay.firebaseapp.com",
+      projectId: "stickerkobrakay",
+      storageBucket: "stickerkobrakay.firebasestorage.app",
+      messagingSenderId: "154203930636",
+      appId: "1:154203930636:web:710ff8dbc43d2abf08ee29",
+      measurementId: "G-J3W1MMBZJ4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const TOTAL_STANDARD = 26;
+    const TOTAL_ALL = 32;
+    const BONUS_AT = 25;
+    const WELCOME_CODE = "KOBRAZ";
+    const ADMIN_USERS = ["admin"];
+
+    const userLine = document.getElementById("user-line");
+    const codeStatus = document.getElementById("code-status");
+    const bar = document.getElementById("bar");
+    const count = document.getElementById("count");
+    const tshirt = document.getElementById("tshirt");
+    const specialStickersEl = document.getElementById("special-stickers");
+    const stickersEl = document.getElementById("stickers");
+    const messagesEl = document.getElementById("messages");
+    const adminBox = document.getElementById("admin-box");
+    const adminInput = document.getElementById("admin-message");
+    const sendMessageBtn = document.getElementById("send-message");
+    const mailBtn = document.getElementById("mail-btn");
+    const mailBadge = document.getElementById("mail-badge");
+    const mailPanel = document.getElementById("mail-panel");
+    const banner = document.getElementById("banner");
+    const bannerTitle = document.getElementById("banner-title");
+    const bannerText = document.getElementById("banner-text");
+
+    const specialCodes = {
+      KOBRAZ: "kobra",
+      ZKTRAP: "arbitro",
+      MNVQSI: "tagteam",
+      LUPKRD: "pizza",
+      AXFJTG: "social",
+      BQYHNO: "greenpin",
+      TORVIX: "torneo"
+    };
+
+    const specialList = [
+      { key: "kobra", label: "1", imgPath: "" },
+      { key: "arbitro", label: "2", imgPath: "stickers/special/arbitro.png" },
+      { key: "tagteam", label: "3", imgPath: "" },
+      { key: "pizza", label: "4", imgPath: "stickers/special/pizza icon.png" },
+      { key: "social", label: "5", imgPath: "stickers/special/instagram.png" },
+      { key: "greenpin", label: "6", imgPath: "" },
+      { key: "torneo", label: "7", imgPath: "" }
+    ];
+
+    const imageCache = {};
+    async function resolveImageUrl(path) {
+      if (!path) return "";
+      if (imageCache[path]) return imageCache[path];
+      try {
+        const url = await getDownloadURL(ref(storage, path));
+        imageCache[path] = url;
+        return url;
+      } catch {
+        return "";
+      }
+    }
+
+    function countUnlockedSpecials(user) {
+      let n = 0;
+      for (const s of specialList) {
+        if (user.specials && user.specials[s.key]) n += 1;
+      }
+      return n;
+    }
+
+    function validCode(code) {
+      return /^[A-Z0-9-]{6,12}$/.test(code);
+    }
+
+    function showBanner(title, text) {
+      bannerTitle.textContent = title;
+      bannerText.textContent = text;
+      banner.style.display = "flex";
+      setTimeout(() => { banner.style.display = "none"; }, 2000);
+    }
+
+    banner.addEventListener("click", () => {
+      banner.style.display = "none";
+    });
+
+    function getSession() {
+      return localStorage.getItem("kobraSession");
+    }
+    function setSession(name) {
+      if (name) localStorage.setItem("kobraSession", name);
+      else localStorage.removeItem("kobraSession");
+    }
+
+    async function ensureUserDoc(username, displayName) {
+      const ref = doc(db, "users", username);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        await setDoc(ref, {
+          username,
+          displayName: displayName || "",
+          stickers: 0,
+          specials: {},
+          usedCodes: [],
+          lastReadMessages: 0,
+          createdAt: serverTimestamp()
+        });
+      }
+      return (await getDoc(ref)).data();
+    }
+
+    async function getLatestUser(userRef) {
+      const snap = await getDoc(userRef);
+      const data = snap.data() || {};
+      return data;
+    }
+
+    async function seedMessagesIfEmpty() {
+      const q = query(collection(db, "messages"), orderBy("date", "desc"), limit(1));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        await addDoc(collection(db, "messages"), {
+          text: `Codice benvenuto: ${WELCOME_CODE}`,
+          date: serverTimestamp()
+        });
+      }
+    }
+
+    async function renderMessages(user) {
+      await seedMessagesIfEmpty();
+      const q = query(collection(db, "messages"), orderBy("date", "asc"));
+      const snap = await getDocs(q);
+      const list = [];
+      snap.forEach((d) => list.push({ id: d.id, ...d.data() }));
+      messagesEl.innerHTML = "";
+      for (const m of list.slice().reverse()) {
+        const el = document.createElement("div");
+        el.className = "message";
+        el.textContent = m.text || "";
+        const t = document.createElement("time");
+        const ts = m.date?.toDate ? m.date.toDate() : new Date();
+        t.textContent = ts.toLocaleString();
+        el.appendChild(t);
+        messagesEl.appendChild(el);
+      }
+      const lastRead = user.lastReadMessages || 0;
+      const newest = list.length ? (list[list.length - 1].date?.toMillis?.() || 0) : 0;
+      mailBadge.style.display = newest > lastRead ? "grid" : "none";
+    }
+
+    async function render(user) {
+      userLine.textContent = `Ciao ${user.displayName || user.username || "utente"}!`;
+      adminBox.style.display = ADMIN_USERS.includes(user.username || "") ? "block" : "none";
+
+      await renderMessages(user);
+
+      const progressStandard = Math.min(user.stickers || 0, TOTAL_STANDARD);
+      const progressTotal = Math.min(progressStandard + countUnlockedSpecials(user), TOTAL_ALL);
+      count.textContent = `${progressTotal}/${TOTAL_ALL}`;
+      bar.style.width = `${(progressTotal / TOTAL_ALL) * 100}%`;
+
+      tshirt.className = "tshirt" + (progressStandard >= BONUS_AT ? " win" : "");
+      if (progressStandard >= BONUS_AT) {
+        tshirt.innerHTML = "<strong>Maglietta Kobra Kay</strong><div>Complimenti! Hai sbloccato la maglietta.</div>";
+      } else {
+        tshirt.innerHTML = "<strong>Maglietta Kobra Kay</strong><div class=\"muted\">Si sblocca al raggiungimento di 25 sticker.</div>";
+      }
+
+      specialStickersEl.innerHTML = "";
+      for (const s of specialList) {
+        const el = document.createElement("div");
+        el.className = "sticker" + (user.specials?.[s.key] ? " unlocked" : "");
+        const imgUrl = user.specials?.[s.key] ? await resolveImageUrl(s.imgPath) : "";
+        if (user.specials?.[s.key] && imgUrl) {
+          const img = document.createElement("img");
+          img.src = imgUrl;
+          img.alt = `Sticker ${s.label}`;
+          img.style.width = "100%";
+          img.style.height = "100%";
+          img.style.objectFit = "cover";
+          img.style.borderRadius = "12px";
+          el.appendChild(img);
+        } else {
+          const label = document.createElement("span");
+          label.textContent = s.label;
+          el.appendChild(label);
+        }
+        specialStickersEl.appendChild(el);
+      }
+
+      stickersEl.innerHTML = "";
+      for (let i = 1; i <= TOTAL_STANDARD; i++) {
+        const el = document.createElement("div");
+        const label = document.createElement("span");
+        el.className = "sticker" + (i <= progressStandard ? " unlocked" : "");
+        label.textContent = i;
+        el.appendChild(label);
+        stickersEl.appendChild(el);
+      }
+    }
+
+    async function handleRedeem(userRef) {
+      const userData = await getLatestUser(userRef);
+      const code = document.getElementById("code").value.trim().toUpperCase();
+      if (!validCode(code)) {
+        codeStatus.textContent = "Codice non valido. Usa 6-12 caratteri A-Z, 0-9, -.";
+        codeStatus.className = "status err";
+        return;
+      }
+
+      if (userData.usedCodes?.includes(code)) {
+        codeStatus.textContent = "Codice già usato.";
+        codeStatus.className = "status warn";
+        return;
+      }
+
+      if (specialCodes[code]) {
+        const key = specialCodes[code];
+        if (userData.specials?.[key]) {
+          codeStatus.textContent = "Sticker speciale già sbloccato.";
+          codeStatus.className = "status warn";
+          return;
+        }
+        const newSpecials = { ...(userData.specials || {}) };
+        newSpecials[key] = true;
+        await updateDoc(userRef, {
+          specials: newSpecials,
+          usedCodes: arrayUnion(code)
+        });
+        codeStatus.textContent = "Sticker speciale sbloccato!";
+        codeStatus.className = "status ok";
+        document.getElementById("code").value = "";
+        showBanner("Complimenti!", "Hai ottenuto lo sticker speciale!");
+      const updated = await getLatestUser(userRef);
+      await render(updated);
+      return;
+      }
+
+      if ((userData.stickers || 0) >= TOTAL_STANDARD) {
+        codeStatus.textContent = "Hai già sbloccato tutti gli sticker.";
+        codeStatus.className = "status ok";
+        return;
+      }
+
+      await updateDoc(userRef, {
+        stickers: (userData.stickers || 0) + 1,
+        usedCodes: arrayUnion(code)
+      });
+      codeStatus.textContent = "Sticker sbloccato!";
+      codeStatus.className = "status ok";
+      document.getElementById("code").value = "";
+      showBanner("Complimenti!", "Hai ottenuto lo sticker!");
+      const updated = await getLatestUser(userRef);
+      await render(updated);
+    }
+
+    (async () => {
+      const username = getSession();
+      if (!username) {
+        window.location.href = "login.html";
+        return;
+      }
+      const userRef = doc(db, "users", username);
+      let currentUserData = null;
+      try {
+        const data = await ensureUserDoc(username, username);
+        currentUserData = { ...data };
+        await render(currentUserData);
+      } catch (err) {
+        codeStatus.textContent = "Errore di accesso ai dati. Controlla le regole Firestore.";
+        codeStatus.className = "status err";
+        return;
+      }
+
+      document.getElementById("redeem").onclick = () => handleRedeem(userRef);
+      sendMessageBtn.onclick = async () => {
+        if (!ADMIN_USERS.includes(username)) return;
+        const text = adminInput.value.trim();
+        if (!text) return;
+        await addDoc(collection(db, "messages"), { text, date: serverTimestamp() });
+        adminInput.value = "";
+        currentUserData = await getLatestUser(userRef);
+        await renderMessages(currentUserData);
+      };
+
+      document.getElementById("logout").onclick = async () => {
+        setSession(null);
+        window.location.href = "login.html";
+      };
+      document.getElementById("reset").onclick = async () => {
+        try {
+          await deleteDoc(userRef);
+        } catch {}
+        setSession(null);
+        window.location.href = "login.html";
+      };
+
+      mailBtn.addEventListener("click", async () => {
+        const isOpen = mailPanel.style.display === "block";
+        if (isOpen) {
+          mailPanel.style.display = "none";
+          return;
+        }
+        mailPanel.style.display = "block";
+        await updateDoc(userRef, { lastReadMessages: Date.now() });
+        currentUserData = await getLatestUser(userRef);
+        await renderMessages(currentUserData);
+      });
+    })();
+  </script>
+</body>
+</html>
