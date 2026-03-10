@@ -374,7 +374,6 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, arrayUnion, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-    import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAgkp6KjRKcOKJHmcKkGiNXGtAv1aaEFSI",
@@ -388,7 +387,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const storage = getStorage(app);
 
     const TOTAL_STANDARD = 26;
     const TOTAL_ALL = 32;
@@ -440,17 +438,11 @@
     ];
 
     const imageCache = {};
-    async function resolveImageUrl(path) {
+    function resolveImageUrl(path) {
       if (!path) return "";
       if (imageCache[path]) return imageCache[path];
-      try {
-        const url = await getDownloadURL(ref(storage, path));
-        imageCache[path] = url;
-        return url;
-      } catch (err) {
-        console.error("Storage getDownloadURL failed:", path, err);
-        return "";
-      }
+      imageCache[path] = path;
+      return path;
     }
 
     function countUnlockedSpecials(user) {
